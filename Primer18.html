@@ -1,0 +1,88 @@
+<!doctype html>
+<meta charset="utf-8">
+
+<!-- Univerza v Mariboru | Fakulteta za organizacijske vede --!>
+<!-- Laboratorij za kibernetiko in sisteme za podporo odločanju -->
+<!-- Andrej Škraba  2017 -->
+
+<html>
+<head>
+<title> Primer z grafom </title>    
+</head>
+    
+<body onload="load();">
+Primer z grafom
+<br>
+<canvas id="platno1" width="800" height="100" style="border:1px dashed #00c3c3"></canvas>
+<canvas id="platno2" width="800" height="100" style="border:1px dashed #00c3c3"></canvas>
+<canvas id="platno3" width="800" height="100" style="border:1px dashed #00c3c3"></canvas>
+
+<script type="text/javascript">
+"use strict"; // omogočimo delo z razredi (class)
+    
+var graf1; // spremenljivka, ki predstavlja prvi graf
+var graf2; // spremenljivka, ki predstavlja prvi graf
+var graf3; // spremenljivka, ki predstavlja prvi graf
+    
+class Graf {
+    constructor(idPlatna) { // pri konstruktorju moramo podati ID platna, ki ga sicer ustvarimo v html-ju
+        this.canvas = document.getElementById(idPlatna);
+        this.ctx = this.canvas.getContext("2d");
+        this.ctx.strokeStyle = "#ff0000"; // določimo rdečo barva grafa
+        this.x = new Array(); // ustvarimo novo polje x
+        this.y = new Array(); // ustvarimo novo polje y
+        this.maxGraphX = this.canvas.width;
+        this.maxGraphY = this.canvas.height;
+        
+        // napolnimo vektor x; vektor y polnimo sproti
+        for (var i=0; i<this.maxGraphX; i++) {
+            this.x[i] = i; // vrednosti za x koordinato; 0, 1, 2, ...
+        }
+    }
+    
+    dodajVrednostAliBrišiInDodaj(yVrednost) {
+        if (this.y.length == this.maxGraphX+1) { // če je platno vel 10x10 imamo 11x11 točk (začnemo z 0)
+            this.y.splice(0, 1); // na mestu 0 v polju y brišemo eno vrednost
+            this.y[this.maxGraphX] = yVrednost; // novo vrednost dodamo na koncu polja
+        }
+        else {
+            this.y.push(yVrednost); // če polje še ni napolnjeno potisnemo novo vrednost v polje
+        }
+    }
+    
+    izriši(yVrednost) {
+        this.dodajVrednostAliBrišiInDodaj(yVrednost);
+        this.ctx.clearRect(0, 0, this.maxGraphX, this.maxGraphY); // brišemo platno
+        this.ctx.beginPath(); // za začetek izrisa črte
+    
+        for (var i=0; i<this.y.length; i++) {
+            this.ctx.lineTo(this.x[i], this.y[i] * this.maxGraphY); // za y vrednosti pomnožimo z višino platna, npr. 0.25 * 100 = 25
+        }
+    
+        this.ctx.stroke();
+    }
+}
+    
+function loop() {
+    
+    graf1.izriši(Math.random());
+    graf2.izriši(Math.random());
+    graf3.izriši(Math.random());
+    var timerVar = setTimeout(loop, 10); // na 10 ms ponavljamo funkcijo loop
+}
+    
+function load () {
+ 
+    graf1 = new Graf("platno1");
+    graf2 = new Graf("platno2");
+    graf3 = new Graf("platno3");
+    
+    loop();
+    
+}
+
+</script>
+
+</body>    
+    
+</html>

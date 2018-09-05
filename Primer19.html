@@ -1,0 +1,51 @@
+<!doctype html>
+<meta charset="utf-8">
+
+<!-- Univerza v Mariboru | Fakulteta za organizacijske vede --!>
+<!-- Laboratorij za kibernetiko in sisteme za podporo odločanju -->
+<!-- Andrej Škraba  2017 -->
+
+<html>
+<head>
+<title> Primer z grafom </title>    
+</head>
+
+<script src="graf.js"></script>    
+    
+<body onload="load();">
+Primer z grafom
+<br>
+<canvas id="platno1" width="800" height="100" style="border:1px dashed #00c3c3"></canvas>
+<canvas id="platno2" width="800" height="100" style="border:1px dashed #00c3c3"></canvas>
+<canvas id="platno3" width="800" height="100" style="border:1px dashed #00c3c3"></canvas>
+
+<script type="text/javascript">
+"use strict"; // omogočimo delo z razredi (class)
+    
+var graf1; // spremenljivka, ki predstavlja prvi graf
+var graf2; // spremenljivka, ki predstavlja prvi graf
+var graf3; // spremenljivka, ki predstavlja prvi graf
+    
+function loop() {
+    
+    graf1.izriši(Math.random());
+    graf2.izriši(Math.random());
+    graf3.izriši(Math.random());
+    var timerVar = setTimeout(loop, 10); // na 10 ms ponavljamo funkcijo loop
+}
+    
+function load () {
+ 
+    graf1 = new Graf("platno1");
+    graf2 = new Graf("platno2");
+    graf3 = new Graf("platno3");
+    
+    loop();
+    
+}
+
+</script>
+
+</body>    
+    
+</html>

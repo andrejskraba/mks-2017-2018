@@ -1,0 +1,77 @@
+<!doctype html>
+<meta charset="utf-8">
+
+<!-- Univerza v Mariboru | Fakulteta za organizacijske vede --!>
+<!-- Laboratorij za kibernetiko in sisteme za podporo odločanju -->
+<!-- Andrej Škraba  2017 -->
+
+<html>
+<head>
+<title> Primer z agenti </title>    
+</head>
+    
+<body>
+Primer z agenti, razredi in objekti
+<br>
+<canvas id="cv1" width="500" height="250" style="border:1px dashed #00c3c3"></canvas>
+
+<script type="text/javascript">
+"use strict"; // obogočimo delo z razredi (class)
+    
+var canvas, ctx; // ustvarimo dve novi spremenljivki za platno (canvas) in kontekst (ctx)
+var agenti = []; // deklariramo polje, ki bo vsebovalo naše agente (Array je označen z [])
+var čas; // uvedemo spremenljivko, ki predstavlja čas
+    
+canvas = document.getElementById("cv1");
+ctx = canvas.getContext("2d");
+
+ctx.fillStyle = "#ff0000"; // določimo rdečo barvo
+    
+class Agent {
+    constructor(x, y, xVel, yVel) {
+        this.x = x; // določimo lastnost x pozicije agenta
+        this.y = y; // določimo lastnost y pozicije agenta
+        this.xVel = xVel; // določimo hitrost v smeri x
+        this.yVel = yVel; // določimo hitrost v smeri y
+    }
+    update () { // članska funkcija - ta funkcija je za vse agente enaka
+        this.x += this.xVel; // pozicija x se spremeni glede na hitrost v smeri x, t.j. xVel
+        this.y += this.yVel; // pozicija y se spremeni glede na hitrost v smeri y, t.j. yVel
+        if(this.x > canvas.width || this.x < 0) { // v primeru, da smo izven platna po x koordinati
+            this.xVel = - this.xVel;              // določimo, da je xVel = -xVel (odboj od stene)
+        }
+        if(this.y > canvas.height || this.y < 0) { // v primeru, da smo izven platna po y koordinati
+            this.yVel = - this.yVel;               // določimo, da je yVel = -yVel (odboj od stene)
+        }
+    }
+}
+
+function loop() {
+    
+    ctx.clearRect(0, 0, canvas.width, canvas.height); // brišemo celotno platno
+
+    agenti[0].update(); // 1. agent
+    agenti[1].update(); // 2. agent
+    agenti[2].update(); // 3. agent
+    
+    ctx.fillRect(agenti[0].x, agenti[0].y, 10, 10); // na platno postavimo agenta na koordinati x,100 dim. 10x10
+    ctx.fillRect(agenti[1].x, agenti[1].y, 10, 10); // na platno postavimo agenta na koordinati x,100 dim. 10x10
+    ctx.fillRect(agenti[2].x, agenti[2].y, 10, 10); // na platno postavimo agenta na koordinati x,100 dim. 10x10
+    
+    čas++; // čas povečamo za 1
+    
+    setTimeout(loop, 5); // na 5ms kličemo funkcijo loop
+}
+    
+agenti[0] = new Agent(Math.random() * canvas.width, Math.random() * canvas.height, 5 * Math.random() - 2.5, 5 * Math.random() - 2.5); // ustvarimo enega agenta, ki bo v polju "agenti" na mestu [0]
+agenti[1] = new Agent(Math.random() * canvas.width, Math.random() * canvas.height, 5 * Math.random() - 2.5, 5 * Math.random() - 2.5); // ustvarimo enega agenta, ki bo v polju "agenti" na mestu [1]
+agenti[2] = new Agent(Math.random() * canvas.width, Math.random() * canvas.height, 5 * Math.random() - 2.5, 5 * Math.random() - 2.5); // ustvarimo enega agenta, ki bo v polju "agenti" na mestu [2]    
+    
+loop();
+
+</script>
+
+
+</body>    
+    
+</html>

@@ -1,0 +1,54 @@
+<!doctype html>
+<meta charset="utf-8">
+
+<!-- Univerza v Mariboru | Fakulteta za organizacijske vede --!>
+<!-- Laboratorij za kibernetiko in sisteme za podporo odločanju -->
+<!-- Andrej Škraba  2017 -->
+
+<html>
+<head>
+<title> Primer z agenti </title>    
+</head>
+    
+<body>
+Primer z agenti, razredi in objekti
+<br>
+<canvas id="cv1" width="500" height="250" style="border:1px dashed #00c3c3"></canvas>
+
+<script type="text/javascript">
+"use strict"; // obogočimo delo z razredi (class)
+    
+var canvas, ctx; // ustvarimo dve novi spremenljivki za platno (canvas) in kontekst (ctx)
+var x = 200; // spremenljivka za x koordinato
+var korak = 1; // spremenljivka za spremembo x koordinate
+    
+canvas = document.getElementById("cv1");
+ctx = canvas.getContext("2d");
+
+ctx.fillStyle = "#ff0000"; // določimo rdečo barvo
+
+function loop() {
+    
+    ctx.clearRect(0, 0, canvas.width, canvas.height); // brišemo celotno platno
+    if (x > 490) {
+        korak = -korak; // obrnemo smer, če pridemo do konca platna na desni
+    }
+    if (x < 0) {
+        korak = -korak; // obrnemo smer, če pridemo do konca platna na levi
+    }
+    
+    x = x + korak; // spremenimo vrednost x koordinate
+    
+    ctx.fillRect(x, 100, 10, 10); // na platno postavimo agenta na koordinati x,100 dim. 10x10
+    
+    setTimeout(loop, 5); // na 5ms kličemo funkcijo loop
+}
+    
+loop();
+
+</script>
+
+
+</body>    
+    
+</html>

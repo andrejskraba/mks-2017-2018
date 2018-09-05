@@ -1,0 +1,61 @@
+<!doctype html>
+<meta charset="utf-8">
+
+<!-- Univerza v Mariboru | Fakulteta za organizacijske vede --!>
+<!-- Laboratorij za kibernetiko in sisteme za podporo odločanju -->
+<!-- Andrej Škraba  2017 -->
+
+<html>
+<head>
+<title> Primer s tabelo</title>    
+</head>
+    
+<body>
+    
+<input type="button" value="Dodaj" onClick="dodaj();">
+<p></p>
+    
+<style> 
+    table { 
+        border-collapse: collapse; 
+    } 
+    
+    table, td, th { 
+        border: 1px solid black; 
+    } 
+</style>
+
+<table border="1" id="tabelaA">
+<tr>
+<td>stolpec1</td><td>stolpec2</td><td>stolpec3</td>    
+</tr>
+</table>
+
+<script type="text/javascript">
+
+function dodajVrstico(idTabele, niz) {
+    // pridobimo referenco (sklic) na tabelo
+    var tabelaRef = document.getElementById(idTabele);
+    
+    // dodamo vrstico na koncu tabele
+    var novaVrstica = tabelaRef.insertRow(tabelaRef.rows.length);
+    
+    for (var i=0; i<niz.length; i++) {
+        var novaCelica = novaVrstica.insertCell(i);
+        var novTekst = document.createTextNode(niz[i]);
+        novaCelica.appendChild(novTekst);
+    }
+}
+
+var niz = new Array(); // polje z nizom podatkov, ki jih želimo prikazati v tabeli
+niz = ["aaa", "bbb", "ccc"];
+    
+function dodaj() {
+    dodajVrstico("tabelaA", niz);
+}
+    
+</script>
+    
+</body>    
+    
+</html>

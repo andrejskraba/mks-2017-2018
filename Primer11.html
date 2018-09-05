@@ -1,0 +1,39 @@
+<!doctype html>
+<meta charset="utf-8">
+
+<!-- Univerza v Mariboru | Fakulteta za organizacijske vede --!>
+<!-- Laboratorij za kibernetiko in sisteme za podporo odločanju -->
+<!-- Andrej Škraba  2017 -->
+
+<html>
+<head>
+<title> Primer z grafom </title>    
+</head>
+    
+<body>
+Primer z grafom
+<br>
+<canvas id="cv2" width="800" height="100" style="border:1px dashed #00c3c3"></canvas>
+
+<script type="text/javascript">
+"use strict"; // omogočimo delo z razredi (class)
+    
+var canvas, ctx; // ustvarimo dve novi spremenljivki za platno (canvas) in kontekst (ctx)
+
+canvas = document.getElementById("cv2");
+ctx = canvas.getContext("2d");
+ctx.strokeStyle = "#ff0000"; // določimo rdečo barva grafa
+
+ctx.beginPath();
+ctx.lineTo(10, 70); // prva točka na platnu
+ctx.lineTo(110, 20);
+ctx.lineTo(210, 40);
+ctx.lineTo(310, 60);
+ctx.lineTo(410, 10);
+ctx.stroke();
+    
+</script>
+
+</body>    
+    
+</html>

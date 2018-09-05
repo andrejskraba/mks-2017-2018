@@ -1,0 +1,76 @@
+<!doctype html>
+<meta charset="utf-8">
+
+<!-- Univerza v Mariboru | Fakulteta za organizacijske vede --!>
+<!-- Laboratorij za kibernetiko in sisteme za podporo odločanju -->
+<!-- Andrej Škraba  2017 -->
+
+<html>
+<head>
+<title> Primer z grafom </title>    
+</head>
+    
+<body onload="load();">
+Primer z grafom
+<br>
+<canvas id="cv2" width="800" height="100" style="border:1px dashed #00c3c3"></canvas>
+
+<script type="text/javascript">
+"use strict"; // omogočimo delo z razredi (class)
+    
+var canvas, ctx; // ustvarimo dve novi spremenljivki za platno (canvas) in kontekst (ctx)
+
+canvas = document.getElementById("cv2");
+ctx = canvas.getContext("2d");
+ctx.strokeStyle = "#ff0000"; // določimo rdečo barva grafa
+var x = new Array(); // ustvarimo novo polje x
+var y = new Array(); // ustvarimo novo polje y
+var maxGraphX = canvas.width;
+var maxGraphY = canvas.height;
+
+// napolnimo polje x z vrednostmi od 0 do širine platna (celoštevilske vrednosti); y z naključnimi vrednostmi
+for (var i=0; i<canvas.width; i++) {
+    x[i] = i; // vrednosti za x koordinato
+}
+    
+function loop() {
+    
+    if (y.length == maxGraphX+1) { // če je platno vel 10x10 imamo 11x11 točk (začnemo z 0)
+        y.splice(0, 1); // na mestu 0 v polju y brišemo eno vrednost
+        y[maxGraphX] = Math.random(); // novo vrednost dodamo na koncu polja
+    }
+    else {
+        y.push(Math.random()); // če polje še ni napolnjeno potisnemo novo vrednost v polje
+    }
+    
+    
+    ctx.clearRect(0, 0, maxGraphX, maxGraphY); // brišemo platno
+    ctx.beginPath(); // za začetek izrisa črte
+    
+    for (var i=0; i<y.length; i++) {
+        ctx.lineTo(x[i], y[i] * maxGraphY); // za y vrednosti pomnožimo z višino platna, npr. 0.25 * 100 = 25
+    }
+    
+    ctx.stroke();
+    
+    var timerVar = setTimeout(loop, 10); // na 10 ms ponavljamo funkcijo loop
+}
+    
+function load () {
+    ctx.beginPath(); // za začetek izrisa črte
+    
+     for (var i=0; i<y.length; i++) {
+        ctx.lineTo(x[i], y[i] * maxGraphY); // za y vrednosti pomnožimo z višino platna, npr. 0.25 * 100 = 25
+    }
+    
+    ctx.stroke();
+    
+    loop();
+    
+}
+
+</script>
+
+</body>    
+    
+</html>

@@ -1,0 +1,141 @@
+<!doctype html>
+<meta charset="utf-8">
+
+<!-- Univerza v Mariboru | Fakulteta za organizacijske vede --!>
+<!-- Laboratorij za kibernetiko in sisteme za podporo odločanju -->
+<!-- Andrej Škraba  2017 -->
+
+<html>
+<head>
+<title> Primer z agenti </title>    
+</head>
+    
+<body onload="load();"> <!-- ko se spletna stran odpre poženemo najprej funkcijo load -->
+Primer z agenti, razredi in objekti
+<br>
+<canvas id="cv1" width="500" height="250" style="border:1px dashed #00c3c3"></canvas>
+
+<script type="text/javascript">
+"use strict"; // omogočimo delo z razredi (class)
+    
+var canvas, ctx; // ustvarimo dve novi spremenljivki za platno (canvas) in kontekst (ctx)
+var agenti = []; // deklariramo polje, ki bo vsebovalo naše agente (Array je označen z [])
+var čas; // uvedemo spremenljivko, ki predstavlja čas
+var številoAgentov = 100; // določimo število agentov
+    
+class Agent {
+    constructor(x, y, xVel, yVel) {
+        this.x = x; // določimo lastnost x pozicije agenta
+        this.y = y; // določimo lastnost y pozicije agenta
+        this.xVel = xVel; // določimo hitrost v smeri x
+        this.yVel = yVel; // določimo hitrost v smeri y
+    }
+    update () { // članska funkcija - ta funkcija je za vse agente enaka
+        this.x += this.xVel; // pozicija x se spremeni glede na hitrost v smeri x, t.j. xVel
+        this.y += this.yVel; // pozicija y se spremeni glede na hitrost v smeri y, t.j. yVel
+        if(this.x > canvas.width - 10 || this.x < 0) { // v primeru, da smo izven platna po x koordinati
+            this.xVel = - this.xVel;              // določimo, da je xVel = -xVel (odboj od stene)
+        }
+        if(this.y > canvas.height - 10 || this.y < 0) { // v primeru, da smo izven platna po y koordinati
+            this.yVel = - this.yVel;               // določimo, da je yVel = -yVel (odboj od stene)
+        }
+        // če je x manjši od 0 ga postavimo na 0 (da se agent ne potopi v steno)
+        if (this.x < 0) {this.x =0};
+        // če je y manjši od 0 ga postavimo na 0 (da se agent ne potopi v steno)
+        if (this.y < 0) {this.y =0};
+        // podobno na drugem koncu platna
+        if (this.x > canvas.width - 10) {this.x = canvas.width - 10};
+        if (this.y > canvas.height - 10) {this.y = canvas.height - 10};
+    }
+}
+    
+// funkcija, ki preveri razdaljo vsakega agenta z vsakim agentom
+// v primeru trka izvedemo funkcijo trk
+function preveriBližinoAgentov() {
+    for (var i=0; i<številoAgentov; i++) {
+        var A = agenti[i];
+        
+        for (var j=i+1; j<številoAgentov; j++) {
+            var B = agenti[j];
+            
+            // izračunamo razlike koordinat
+            var dx = B.x - A.x;
+            var dy = B.y - A.y;
+            var dist = Math.sqrt(dx*dx + dy*dy);
+            
+            // če je razlika v razdalji med agentoma manjša od 10 izvedemo trk
+            
+            if (dist < 10) { // če je pogoj, da sta agenta dovolj blizu (trk) izpolnjen
+                izvediTrk(i, j); // izvedemo trk med agentoma z indeksoma i in j
+            }
+        }
+    }
+}
+    
+// funkcija, ki izvede trk med agentoma z indeksoma i in j
+function izvediTrk(indeksPrvega, indeksDrugega) {
+    var x1 = agenti[indeksPrvega].x;
+    var y1 = agenti[indeksPrvega].y;
+    var x2 = agenti[indeksDrugega].x;
+    var y2 = agenti[indeksDrugega].y;
+    var dx = x2 - x1;
+    var dy = y2 - y1;
+    var dist = Math.sqrt(dx*dx + dy*dy);
+    var razdaljaOdboja = 6; // spr. določa za koliko se agenta ob trku odbijeta
+    
+    // izračunamo normalo razdalje
+    var normalaX = dx/dist;
+    var normalaY = dy/dist;
+    
+    // sredinske točke
+    var midpointX = (x1 + x2)/2;
+    var midpointY = (y1 + y2)/2;
+    
+    // določimo nove pozicije
+    agenti[indeksPrvega].x = midpointX - normalaX * razdaljaOdboja;
+    agenti[indeksPrvega].y = midpointY - normalaY * razdaljaOdboja;
+    agenti[indeksDrugega].x = midpointX + normalaX * razdaljaOdboja;
+    agenti[indeksDrugega].y = midpointY + normalaY * razdaljaOdboja;
+    
+    var tempX = agenti[indeksPrvega].xVel;
+    var tempY = agenti[indeksPrvega].yVel;
+    agenti[indeksPrvega].xVel = agenti[indeksDrugega].xVel;
+    agenti[indeksPrvega].yVel = agenti[indeksDrugega].yVel;
+    agenti[indeksDrugega].xVel = tempX;
+    agenti[indeksDrugega].yVel = tempY;
+}
+
+function loop() {
+    
+    ctx.clearRect(0, 0, canvas.width, canvas.height); // brišemo celotno platno
+    
+    preveriBližinoAgentov (); // preverimo bližino agentov in izvedemo trk
+
+    for (var i=0; i<številoAgentov; i++) {
+        agenti[i].update(); // i-ti agent
+        ctx.fillRect(agenti[i].x, agenti[i].y, 10, 10); // na platno postavimo agenta na koordinati x,100 dim. 10x10
+    }
+    
+    čas++; // čas povečamo za 1
+    
+    setTimeout(loop, 5); // na 5ms kličemo funkcijo loop
+}
+    
+function load() {
+    canvas = document.getElementById("cv1");
+    ctx = canvas.getContext("2d");
+    
+    ctx.fillStyle = "#ff0000"; // določimo rdečo barvo
+
+    for (var i=0; i<številoAgentov; i++) {
+        agenti[i] = new Agent(Math.random() * canvas.width, Math.random() * canvas.height, 1 * Math.random() - 0.5, 1 * Math.random() - 0.5); // ustvarimo enega agenta, ki bo v polju "agenti" na mestu [0]
+    }
+    
+    loop();
+}    
+    
+</script>
+
+</body>    
+    
+</html>

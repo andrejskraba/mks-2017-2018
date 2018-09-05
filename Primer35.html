@@ -1,0 +1,227 @@
+<!doctype html>
+<meta charset="utf-8">
+
+<!-- Univerza v Mariboru | Fakulteta za organizacijske vede --!>
+<!-- Laboratorij za kibernetiko in sisteme za podporo odločanju -->
+<!-- Andrej Škraba  2017 -->
+
+<html>
+<head>
+<title> Model sistemske dinamike </title>    
+</head>
+    
+<body onload="load();"> <!-- ko se spletna stran odpre poženemo najprej funkcijo load -->
+
+<script src="graf2.js"></script>    
+
+Stop čas: <input id="stopČas" value = 10 />
+<input type="button" value="Poženi" onClick="poženi();">
+<input type="button" value="Ustavi" onClick="ustavi();">
+<input type="button" value="Koračno" onClick="koračniZagon();">
+<br>
+<br>
+<input type="text" id="a" value="0.5">
+<input id="drsnik" type="range" min="0" max="0.6" step="0.1" value="0.5" onChange="izpišiVrednost();">
+<br>
+    
+<div id="izpis1"></div>
+<div id="izpis2"></div>
+<div id="izpis3"></div>
+    
+<br>
+<canvas id="platno1" width="100" height="100" style="border: 1px dashed #00c3c3"></canvas>
+<br>
+    
+<table border="1" id="tabelaA">
+<tr>
+<td>Čas</td><td>Level</td><td>Rate</td>    
+</tr>
+</table>
+    
+<script type="text/javascript">
+"use strict"; // omogočimo delo z razredi (class), spremenljivke moramo deklarirati z var
+
+var izpis1 = document.getElementById("izpis1");
+var izpis2 = document.getElementById("izpis2");
+var izpis3 = document.getElementById("izpis3");
+    
+var dt = 1; // časovni korak, delta t pri Eulerjevi numerični integracijski metodi
+var čas = 0; // spremenljivka, ki predstavlja čas
+var stopTime = 10; // čas zaključka izvdbe simulacije
+    
+var levelArray = new Array(); // polje za objekte stanja
+var rateArray = new Array(); // polje za objekte pretokov
+var auxiliaryArray = new Array(); // polje za objekte pomožnih spremenljivk (avksiliarne spremenljivke)
+    
+var graf1; // spremenljivka za graf (objekt razreda Graf)
+    
+var stopČas = 0; // stop čas preberemo iz vnosnega polja
+var aktiven; // za kontroliranje funkcije setTimeout (za prekinitev)
+var stikaloKoračniZagon = 0; // stikalo za koračno izvedbo
+    
+var niz = new Array();
+    
+class Level {
+    constructor(value) {
+        this.value = value; // začetno vrednost prenesemo iz argumenta konst. funkcije
+        levelArray.push(this); // celotni objekt potisnemo v polje, skupaj s funkcijami updateFn in update
+    }
+    
+    updateFn () {}; // za začetek prazna funkcija, kot enačba; ob definiciji modela tu vpišemo enačbo
+    
+    update () {
+        this.value = this.value + dt * this.updateFn(); // izvedemo integracijo po Eulerjevi metodi
+    }
+}
+    
+class Rate {
+    constructor(value) {
+        this.value = value; // začetno vrednost prenesemo preko argumenta konst. funkcije
+        rateArray.push(this); // celotni objekt potisnemo v polje, skupaj s funkcijami
+    }
+    
+    updateFn () {}; // za začetek prazna funkcija, kot enačba; ob definiciji modela tu vpišemo enačbo
+    
+    update () {
+        this.value = this.updateFn(); // tu je funkcija drugačna kot pri Level, brez dt
+    }
+}
+    
+class Auxiliary {
+    constructor(value) {
+        this.value = value; // začetno vrednost prenesemo preko argumenta konst. funkcije
+        auxiliaryArray.push(this); // celotni objekt potisnemo v polje, skupaj s funkcijami
+    }
+    
+    updateFn () {}; // za začetek prazna funkcija, kot enačba; ob definiciji modela tu vpišemo enačbo
+    
+    update () {
+        this.value = this.updateFn(); // tu je funkcija drugačna kot pri Level, brez dt
+    }
+}
+    
+// **********************************************************************************************
+// Definicija modela ZAČETEK ********************************************************************
+// **********************************************************************************************
+
+// Vrstni red spremenljivk je pomemben, da gredo v polju po vrsti, da jih lahko ob "update"
+// preračunamo. Na začetku so inicializirana le stanja (Level) in lahko določimo le tiste Aux in
+// Rate, ki so vezani na stanja. Zaporedje je določeno s povezanostjo z "Level"
+    
+var Stanje = new Level(10); // definiramo stanje z začetno vrednostjo 10
+var Pritok = new Rate(); // definicija oz. kreiranje pritoka
+var a = 0.5; // spremenljivka a predstavlja količnik rasti (obrestna mera 50%)
+    
+// Auxiliary ~ definicije za elemente Aux. ~ pomožne elemente
+
+// Rate
+Pritok.updateFn = function() {return a*Stanje.value};
+    
+// Level
+Stanje.updateFn = function() {return Pritok.value};
+    
+// **********************************************************************************************
+// Definicija modela KONEC **********************************************************************
+// **********************************************************************************************
+    
+// Funkcija init ~ le to poženemo na začetku, ob času 0, da določimo vrednosti Rate-ov in Aux.-ov
+    
+function init() {
+    
+    niz.push(čas); // v niz za izpis v tabelo potisnem čas
+    
+    for(var i=0; i<auxiliaryArray.length; i++) {
+        auxiliaryArray[i].update();
+    }
+    
+    for(var i=0; i<rateArray.length; i++) {
+        rateArray[i].update();
+        niz[2]=((rateArray[0].value).toFixed(3));
+    }
+    
+    niz[1]=((levelArray[0].value).toFixed(3));
+    
+    dodajVrstico("tabelaA", niz);
+    niz = []; // niz izpraznimo
+    
+    graf1.izriši(levelArray[0].value); // izrišemo vrednost prvega stanja [0] na graf
+}
+    
+function loop() {
+    čas = čas + 1; // prištejemo 1 k času
+    
+    for(var i=0; i<levelArray.length; i++) {
+        levelArray[i].update();
+    }
+    
+    for(var i=0; i<auxiliaryArray.length; i++) {
+        auxiliaryArray[i].update();
+    }
+    
+    for(var i=0; i<rateArray.length; i++) {
+        rateArray[i].update();
+    }
+    
+    niz.push(čas); // v niz potisnemo vrednost časa
+    niz.push((levelArray[0].value).toFixed(3));
+    niz.push((rateArray[0].value).toFixed(3));
+    
+    dodajVrstico("tabelaA", niz);
+    niz = []; // niz izpraznimo
+    
+    graf1.izriši(levelArray[0].value); // izrišemo vrednost prvega stanja [0] na graf
+    
+}
+    
+function dodajVrstico(idTabele, niz) {
+    // pridobimo referenco (sklic) na tabelo
+    var tabelaRef = document.getElementById(idTabele);
+    
+    // dodamo vrstico na koncu tabele
+    var novaVrstica = tabelaRef.insertRow(tabelaRef.rows.length);
+    
+    for (var i=0; i<niz.length; i++) {
+        var novaCelica = novaVrstica.insertCell(i);
+        var novTekst = document.createTextNode(niz[i]);
+        novaCelica.appendChild(novTekst);
+    }
+}
+    
+function poženi() {
+    stopČas = document.getElementById("stopČas").value;
+    if (čas >= stopČas) { // prekinemo simulacijo oz. Timeout, če je čas >= času zaključka simulacije
+        stikaloKoračniZagon = 1;
+        clearTimeout(aktiven); // prekinemo izvajanje oz. Timeout
+    }
+    else {
+        loop(); // kličemo funkcijo za izvedbo simulacije
+        aktiven = setTimeout("poženi()", 500); // na 500ms kličemo funkcijo poženi
+    }
+}
+
+function ustavi() {
+    if (aktiven) clearTimeout(aktiven);
+}
+    
+function koračniZagon () {
+    if (aktiven) clearTimeout(aktiven);
+    stikaloKoračniZagon = 1;
+    loop();
+}
+
+function izpišiVrednost() {
+    // ob premiku drsnika izvedemo zapis v tekstovno polje in spremenljivko a
+    document.getElementById("a").value = parseFloat(document.getElementById("drsnik").value);
+    a = parseFloat(document.getElementById("drsnik").value);
+}    
+    
+function load() {
+    graf1 = new Graf("platno1", 10, 600); // 1. Arg=ID platna, 2. Arg=max po x osi 3. Arg.=max po y osi
+    init(); // inicializiramo R(0), A(0); L(0) je že podan
+}    
+    
+</script>
+
+</body>    
+    
+</html>
